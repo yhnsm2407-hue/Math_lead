@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 리더보드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .leaderboard-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+            text-align: center;
+        }
+        .leaderboard-box, .input-box {
+            width: 100%;
+            max-width: 500px;
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="leaderboard-container">
+        <h1 class="text-4xl font-bold text-gray-800">오늘의 리더보드</h1>
+        
+        <!-- 리더보드 박스 -->
+        <div class="leaderboard-box">
+            <h2 class="text-3xl font-extrabold text-blue-600 mb-4">오늘의 TOP 3</h2>
+            <ul id="leaderboard-list" class="space-y-3 text-lg text-gray-600">
+                <!-- JavaScript를 통해 순위가 여기에 동적으로 추가됩니다. -->
+            </ul>
+        </div>
+
+        <!-- 기록 입력 박스 -->
+        <div class="input-box">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">기록 입력</h2>
+            <form id="record-form" class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <input type="text" id="nickname" placeholder="별명" required
+                       class="w-full sm:w-32 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <input type="number" id="score" placeholder="기록 (cm)" required
+                       class="w-full sm:w-32 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <button type="submit"
+                        class="w-full sm:w-auto bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-blue-700 transition-colors duration-200">
+                    기록 제출
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // HTML 요소들을 JavaScript 변수로 가져옵니다.
+            const form = document.getElementById('record-form');
+            const nicknameInput = document.getElementById('nickname');
+            const scoreInput = document.getElementById('score');
+            const leaderboardList = document.getElementById('leaderboard-list');
+
+            // 오늘의 날짜를 'YYYY-MM-DD' 형식의 문자열로 반환하는 함수
+            const getTodayDateKey = () => {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `leaderboard-${year}-${month}-${day}`;
+            };
+
+            // 리더보드 데이터를 화면에 표시하는 함수
+            const displayLeaderboard = () => {
+                const todayKey = getTodayDateKey();
+                // localStorage에서 오늘의 기록을 가져오거나, 없으면 빈 배열을 만듭니다.
+                const records = JSON.parse(localStorage.getItem(todayKey)) || [];
+
+                // 기록(score)을 기준으로 내림차순 정렬합니다. (높은 점수가 1위)
+                records.sort((a, b) => b.score - a.score);
+
+                // 상위 3개 기록만 잘라냅니다.
+                const top3 = records.slice(0, 3);
+
+                // 기존 목록을 비우고 새로운 목록을 생성합니다.
+                leaderboardList.innerHTML = '';
+
+                // 항상 3개의 순위 항목을 표시합니다.
+                for (let i = 0; i < 3; i++) {
+                    const li = document.createElement('li');
+                    li.className = 'p-3 bg-gray-50 rounded-lg flex items-center justify-between shadow-sm';
+                    
+                    const rankSpan = document.createElement('span');
+                    rankSpan.textContent = `${i + 1}위`;
+                    rankSpan.className = 'font-bold text-gray-700 w-12 text-left';
+                    
+                    li.appendChild(rankSpan);
+
+                    if (top3[i]) {
+                        // 기록이 있는 경우, 별명과 점수를 표시합니다.
+                        const record = top3[i];
+
+                        const nameSpan = document.createElement('span');
+                        nameSpan.textContent = record.nickname;
+                        nameSpan.className = 'flex-1 mx-2 text-left truncate';
+
+                        const scoreSpan = document.createElement('span');
+                        scoreSpan.textContent = `${record.score}cm`;
+                        scoreSpan.className = 'font-semibold text-blue-600 w-24 text-right';
+
+                        li.appendChild(nameSpan);
+                        li.appendChild(scoreSpan);
+                    } else {
+                        // 기록이 없는 경우, 빈칸을 표시합니다.
+                        const placeholderSpan = document.createElement('span');
+                        placeholderSpan.textContent = '---';
+                        placeholderSpan.className = 'flex-1 mx-2 text-center text-gray-400';
+
+                        const emptyScoreSpan = document.createElement('span');
+                        emptyScoreSpan.textContent = '---';
+                        emptyScoreSpan.className = 'font-semibold text-gray-400 w-24 text-right';
+                        
+                        li.appendChild(placeholderSpan);
+                        li.appendChild(emptyScoreSpan);
+                    }
+                    
+                    leaderboardList.appendChild(li);
+                }
+            };
+
+            // 폼 제출 이벤트 리스너
+            form.addEventListener('submit', (e) => {
+                e.preventDefault(); // 기본 폼 제출 동작 방지
+
+                const todayKey = getTodayDateKey();
+                const newRecord = {
+                    nickname: nicknameInput.value,
+                    score: parseInt(scoreInput.value, 10), // 입력값을 정수로 변환
+                    timestamp: Date.now() // 기록 생성 시간
+                };
+
+                // 기존 기록을 가져와 새 기록을 추가합니다.
+                const records = JSON.parse(localStorage.getItem(todayKey)) || [];
+                records.push(newRecord);
+
+                // 업데이트된 기록을 다시 localStorage에 저장합니다.
+                localStorage.setItem(todayKey, JSON.stringify(records));
+
+                // 화면을 업데이트하여 최신 순위를 보여줍니다.
+                displayLeaderboard();
+
+                // 입력 필드를 비웁니다.
+                nicknameInput.value = '';
+                scoreInput.value = '';
+            });
+
+            // 개발자 콘솔에서 기록을 다운로드하는 함수
+            window.downloadLeaderboardData = () => {
+                const todayKey = getTodayDateKey();
+                const records = JSON.parse(localStorage.getItem(todayKey)) || [];
+                
+                if (records.length === 0) {
+                    console.log('다운로드할 기록이 없습니다.');
+                    return;
+                }
+
+                // CSV 헤더를 추가합니다.
+                let csvContent = "순위,별명,기록(cm)\n";
+
+                // 기록을 점수 기준으로 내림차순 정렬합니다.
+                records.sort((a, b) => b.score - a.score);
+
+                // CSV 데이터 행을 만듭니다.
+                records.forEach((record, index) => {
+                    csvContent += `${index + 1},${record.nickname},${record.score}\n`;
+                });
+
+                // Blob 객체를 생성합니다.
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+
+                // 임시 <a> 태그를 만들어 다운로드를 시작합니다.
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `leaderboard_${todayKey}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                URL.revokeObjectURL(url); // 메모리 해제
+            };
+
+            // 페이지가 로드될 때 리더보드를 한 번 표시합니다.
+            displayLeaderboard();
+        });
+    </script>
+
+</body>
+</html>
