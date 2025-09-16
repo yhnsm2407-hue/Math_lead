@@ -176,8 +176,10 @@
                     return;
                 }
 
-                // CSV 헤더를 추가합니다.
-                let csvContent = "순위,별명,기록(cm)\n";
+                // BOM(Byte Order Mark)을 포함한 CSV 헤더를 추가합니다.
+                // 이 부분이 한글 깨짐을 방지합니다.
+                const bom = "\uFEFF";
+                let csvContent = bom + "순위,별명,기록(cm)\n";
 
                 // 기록을 점수 기준으로 내림차순 정렬합니다.
                 records.sort((a, b) => b.score - a.score);
