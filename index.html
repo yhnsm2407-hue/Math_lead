@@ -73,7 +73,7 @@
             <form id="record-form" class="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <input type="text" id="nickname" placeholder="별명" required
                        class="w-full sm:flex-1 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
-                <input type="number" id="score" placeholder="기록 (cm)" required
+                <input type="number" id="score" placeholder="기록 (cm)" required step="0.01"
                        class="w-full sm:flex-1 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
                 <button type="submit"
                         class="w-full sm:w-auto bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-blue-700 transition-colors duration-200">
@@ -165,8 +165,8 @@
                 const todayKey = getTodayDateKey();
                 const newRecord = {
                     nickname: nicknameInput.value,
-                    score: parseFloat(scoreInput.value), // 입력값을 정수로 변환
-                    timestamp: Date.now() // 기록 생성 시간
+                    score: parseFloat(scoreInput.value), // parseFloat로 변경
+                    timestamp: Date.now()
                 };
 
                 // 기존 기록을 가져와 새 기록을 추가합니다.
@@ -230,4 +230,3 @@
 
 </body>
 </html>
-
