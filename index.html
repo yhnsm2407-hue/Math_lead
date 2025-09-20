@@ -165,7 +165,7 @@
                 const todayKey = getTodayDateKey();
                 const newRecord = {
                     nickname: nicknameInput.value,
-                    score: parseInt(scoreInput.value, 10), // 입력값을 정수로 변환
+                    score: parseFloat(scoreInput.value), // 입력값을 정수로 변환
                     timestamp: Date.now() // 기록 생성 시간
                 };
 
@@ -230,3 +230,4 @@
 
 </body>
 </html>
+
